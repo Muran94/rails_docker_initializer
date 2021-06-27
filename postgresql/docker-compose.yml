@@ -16,8 +16,8 @@ services:
     command: bash -c "rm -f tmp/pids/server.pid && rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - .:/app
-      - bundle:/usr/local/bundle
-      - node-modules:/app/node_modules
+      # - bundle:/usr/local/bundle
+      # - node-modules:/app/node_modules
 
     environment:
       APP_NAME: "something"
@@ -34,8 +34,8 @@ services:
     command: ./bin/webpack-dev-server
     volumes:
       - .:/app
-      - bundle:/usr/local/bundle
-      - node-modules:/app/node_modules
+      # - bundle:/usr/local/bundle
+      # - node-modules:/app/node_modules
 
     ports:
       - 30350:3035
