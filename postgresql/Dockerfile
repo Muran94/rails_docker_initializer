@@ -22,7 +22,8 @@ RUN apk add --no-cache build-base
 # GEMS
 FROM builder as gems
 COPY Gemfile* ./
-RUN apk add --no-cache git postgresql-dev && \
+RUN apk update && \
+    apk add --no-cache git postgresql-dev && \
     bundle install && \
     rm -rf /usr/local/bundle/cache/*.gem && \
     find /usr/local/bundle/gems/ -name "*.c" -delete && \
