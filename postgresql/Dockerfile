@@ -8,32 +8,34 @@ ENV LANG=ja_JP.UTF-8 \
     BUNDLE_JOBS=$bundle_jobs \
     BUNDLE_WITHOUT=$bundle_without
 RUN apk update && \
-    apk add --no-cache postgresql tzdata yarn nodejs && \
-    cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
-    apk del --purge tzdata
+    apk add --no-cache tzdata yarn postgresql-client && \
+    cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
+
+
+# BUILDER
+FROM base as builder
+RUN apk add --no-cache build-base
 
 
 
 # GEMS
-FROM base as gems
-RUN apk add --no-cache --virtual for-bundle-install build-base git postgresql-dev
+FROM builder as gems
 COPY Gemfile* ./
-RUN bundle install && \
+RUN apk add --no-cache git postgresql-dev && \
+    bundle install && \
     rm -rf /usr/local/bundle/cache/*.gem && \
     find /usr/local/bundle/gems/ -name "*.c" -delete && \
     find /usr/local/bundle/gems/ -name "*.o" -delete && \
-    find /usr/local/bundle/gems/ -path '/*/ext/*/Makefile' -exec dirname {} \; | xargs -n1 -P$(nproc) -I{} make -C {} clean && \
-    apk del --purge for-bundle-install
+    find /usr/local/bundle/gems/ -path '/*/ext/*/Makefile' -exec dirname {} \; | xargs -n1 -P$(nproc) -I{} make -C {} clean
 
 
 
 # YARN
-FROM base as yarn
-RUN apk add --no-cache --virtual for-yarn-install python2 make g++
+FROM builder as yarn
 COPY package.json yarn.lock ./
-RUN yarn install --check-files && \
-    yarn cache clean && \
-    apk del --purge for-yarn-install
+RUN apk add --no-cache python2 && \
+    yarn install --check-files && yarn cache clean
 
 
 

@@ -10,19 +10,14 @@ services:
       context: .
       target: app-for-development-and-test
       args:
-        bundle_jobs: $BUNDLE_JOBS
-        bundle_without: $BUNDLE_WITHOUT
+        bundle_jobs: 8
+        bundle_without: staging:production
     image: "${APP_NAME}_web:latest"
     command: bash -c "rm -f tmp/pids/server.pid && rails s -p 3000 -b '0.0.0.0'"
     volumes:
       - .:/app
       # - bundle:/usr/local/bundle
       # - node-modules:/app/node_modules
-
-    environment:
-      APP_NAME: "something"
-    env_file:
-      - .env
     ports:
       - 30000:3000
     depends_on:
@@ -36,7 +31,6 @@ services:
       - .:/app
       # - bundle:/usr/local/bundle
       # - node-modules:/app/node_modules
-
     ports:
       - 30350:3035
     depends_on:
