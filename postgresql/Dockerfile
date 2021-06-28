@@ -8,19 +8,13 @@ ENV LANG=ja_JP.UTF-8 \
     BUNDLE_JOBS=$bundle_jobs \
     BUNDLE_WITHOUT=$bundle_without
 RUN apk update && \
-    apk add --no-cache tzdata yarn postgresql-client && \
+    apk add --no-cache build-base tzdata yarn postgresql-client && \
     cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
 
 
-# BUILDER
-FROM base as builder
-RUN apk add --no-cache build-base
-
-
-
 # GEMS
-FROM builder as gems
+FROM base as gems
 COPY Gemfile* ./
 RUN apk update && \
     apk add --no-cache git postgresql-dev && \
@@ -33,7 +27,7 @@ RUN apk update && \
 
 
 # YARN
-FROM builder as yarn
+FROM base as yarn
 COPY package.json yarn.lock ./
 RUN apk add --no-cache python2 && \
     yarn install --check-files && yarn cache clean
